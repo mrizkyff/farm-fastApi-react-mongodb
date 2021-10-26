@@ -1,6 +1,9 @@
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, File, Form, UploadFile
+from fastapi.datastructures import UploadFile
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.params import File
 from pydantic.networks import stricturl
+from face_rec import perhitungan_face_recognition
 
 from model import Todo
 
@@ -65,3 +68,17 @@ async def delete_todo(title):
             return "Successfully deleted todo item!"
     
     raise HTTPException(404,f"there is no todo item with this title! {title}")
+
+@app.post("/api/recog")
+def _file_upload(
+        my_file: UploadFile = File(...),
+        first: str = Form(...),
+        second: str = Form("default value  for second"),
+):
+    result = perhitungan_face_recognition(my_file.file)
+    return {
+        "name": my_file.filename,
+        "first": first,
+        "second": second,
+        "result": result
+    }
